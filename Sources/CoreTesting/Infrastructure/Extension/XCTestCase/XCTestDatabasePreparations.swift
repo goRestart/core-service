@@ -3,23 +3,36 @@ import Vapor
 import FluentProvider
 import Testing
 
-public class XCTestDatabasePreparations: XCTestCase {
+public protocol TestableDroplet {
+  static func testable() -> Droplet
+}
+
+extension Droplet: TestableDroplet {
+  public static func testable() -> Droplet {
+    fatalError("You need to return a singleton instance of the current droplet")
+  }
+}
+
+open class XCTestDatabasePreparations: XCTestCase {
   
   public var database: Database!
   public var droplet: Droplet!
-  
-  override public func setUp() {
+
+  override open func setUp() {
     super.setUp()
     Fluent.autoForeignKeys = false
     Testing.onFail = XCTFail
     
     let driver = try! MemoryDriver()
-    droplet = try! Droplet.testable(with: droplet)
     database = Database(driver)
+    
+    droplet = Droplet.testable()
+    droplet.config.arguments = ["vapor", "--env=test"]
+    
     initializeDatabase()
   }
   
-  override public func tearDown() {
+  override open func tearDown() {
     super.tearDown()
     try! database.revertAll(droplet.config.preparations)
   }
