@@ -24,4 +24,13 @@ public extension Mappable {
       return try map(element)
     }
   }
+  
+  // MARK: - Optionals
+  
+  public func map(elements: [From]?) throws -> [To] {
+    guard let newElements = elements else { return [] }
+    return try map(
+      elements: newElements
+    )
+  }
 }
