@@ -7,3 +7,18 @@ public struct Identifier<Entity> {
     self.value = value
   }
 }
+
+// MARK: - Encodable
+
+extension Identifier: Encodable {
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(value)
+  }
+}
+
+extension Identifier: Decodable {
+  public init(from decoder: Decoder) throws {
+    value = try decoder.singleValueContainer().decode(String.self)
+  }
+}
